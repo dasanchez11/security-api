@@ -36,6 +36,10 @@ module.exports.signIn = async (req, res, next) => {
             const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
             const expiresAt = decodedToken.exp;
 
+            res.cookie('token',token,{
+                httpOnly:true
+            });
+
             res.json({
                 message: 'Authentication successful!',
                 token,
@@ -105,6 +109,10 @@ module.exports.signUp = async (req, res, next) => {
             const token = createToken(savedUser);
             const decodedToken = jwt.verify(token,process.env.SECRET_KEY);
             const expiresAt = decodedToken.exp;
+
+            res.cookie('token',token,{
+                httpOnly:true
+            });
 
             const {
                 firstName,
