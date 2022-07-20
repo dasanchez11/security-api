@@ -8,6 +8,7 @@ const bcrypt = require('bcryptjs')
 const axios = require('axios')
 const Kanban = require('../Models/Kanban.model')
 
+
 module.exports.signIn = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -35,6 +36,13 @@ module.exports.signIn = async (req, res, next) => {
 
             const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
             const expiresAt = decodedToken.exp;
+
+            const refreshToken = utils.getRefreshToken()
+            await utils.saveRefreshToken(refreshToken,userInfo._id)
+
+            res.cookie('refreshToken',refreshToken,{
+                httpOnly:true
+            })
 
             res.json({
                 message: 'Authentication successful!',
@@ -107,6 +115,7 @@ module.exports.signUp = async (req, res, next) => {
             const expiresAt = decodedToken.exp;
 
             const {
+                _id,
                 firstName,
                 lastName,
                 email,
@@ -115,12 +124,20 @@ module.exports.signUp = async (req, res, next) => {
             } = savedUser;
 
             const userInfo = {
+                _id,
                 firstName,
                 lastName,
                 email,
                 role,
                 kanban
             };
+
+            const refreshToken = utils.getRefreshToken()
+            await utils.saveRefreshToken(refreshToken,userInfo._id)
+            
+            res.cookie('refreshToken',refreshToken,{
+                httpOnly:true
+            })
 
             return res.json({
                 message: 'User created!',
