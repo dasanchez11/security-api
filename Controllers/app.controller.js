@@ -32,9 +32,9 @@ const patchUserRole = async (req, res) => {
 
   const getInventory = async (req, res) => {
     try {
-      const {sub} = req.user
+      const {user} = req.session
       const inventoryItems = await InventoryItem.find({
-        user:sub
+        user:user._id
       });
       res.json(inventoryItems);
     } catch (err) {
@@ -44,9 +44,9 @@ const patchUserRole = async (req, res) => {
 
   const postInventory = async (req, res) => {
     try {
-      const {sub} = req.user
+      const {user} = req.session
       const input = Object.assign({},req.body,{
-        user: sub
+        user: user._id
       })
       const inventoryItem = new InventoryItem(input);
       await inventoryItem.save();
@@ -64,9 +64,9 @@ const patchUserRole = async (req, res) => {
 
   const deletInventory = async (req, res) => {
   try {
-    const {sub} = req.user
+    const {user} = req.session
     const deletedItem = await InventoryItem.findOneAndDelete(
-      { _id: req.params.id,user:sub }
+      { _id: req.params.id,user:user._id }
     );
     res.status(201).json({
       message: 'Inventory item deleted!',
@@ -97,9 +97,9 @@ const getUsers = async (req, res) => {
 
   const getBio = async (req, res) => {
     try {
-      const { sub } = req.user;
+      const sessionUser = req.session.user._id;
       const user = await User.findOne({
-        _id: sub
+        _id: sessionUser
       })
         .lean()
         .select('bio');
@@ -117,11 +117,11 @@ const getUsers = async (req, res) => {
 const patchBio = async (req, res) => {
   
     try {
-      const { sub } = req.user;
+      const {user} = req.session
       const { bio } = req.body;
       const updatedUser = await User.findOneAndUpdate(
         {
-          _id: sub
+          _id: user._id
         },
         {
           bio
@@ -142,6 +142,26 @@ const patchBio = async (req, res) => {
     }
   }
 
+  const getUserInfo = (req,res,next)=>{
+    const {user} = req.session;
+    if(!user) {
+      return res.status(401).json({message:'Unauthorized'})
+    }
+    setTimeout(()=>{
+      res.status(200).json({user})
+    },1000)
+  }
+
+
+  const postLogout = (req,res)=>{
+    req.session.destroy(error=>{
+      if(error){
+        return res.status(400).json({message:'There was a problem logging out'})
+      }
+    })
+    res.status(200).json({message:'Logout Successful'})
+  }
+
 
 
 
@@ -153,5 +173,7 @@ module.exports = {
     deletInventory,
     getUsers,
     getBio,
-    patchBio
+    patchBio,
+    postLogout,
+    getUserInfo
 }

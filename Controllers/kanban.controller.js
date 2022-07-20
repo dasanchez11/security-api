@@ -27,7 +27,7 @@ module.exports.getKanban = async (req, res, next) => {
 module.exports.postAddTask = async (req, res, next) => {
     let { itemToAdd, columnName } = req.body
     columnName = columnName[0]
-    const { kanbanId } = req.user
+    const  kanbanId  = req.session.user.kanban
     try {
         if (!kanbanId) {
             return res.status(404).json({ message: 'Not Authorized to perform this action' })
@@ -55,7 +55,7 @@ module.exports.postAddTask = async (req, res, next) => {
 module.exports.patchRemoveTask = async (req, res, next) => {
     let { taskId, columnName } = req.body
     columnName = columnName[0]
-    const { kanbanId } = req.user
+    const  kanbanId  = req.session.user.kanban
     try {
         if (!kanbanId) {
             return res.status(404).json({ message: 'Not Authorized to perform this action' })
@@ -80,7 +80,7 @@ module.exports.patchRemoveTask = async (req, res, next) => {
 
 module.exports.postEditTask = async (req, res, next) => {
     let { itemId, name, startDate, column } = req.body.modalInfo
-    const { kanbanId } = req.user
+    const  kanbanId  = req.session.user.kanban
     try {
         if (!kanbanId) {
             return res.status(404).json({ message: 'Not Authorized to perform this action' })
@@ -113,7 +113,7 @@ module.exports.postMoveDifferent = async (req, res, next) => {
     let { sourceColName, destColName,source,destination } = req.body
     sourceColName = sourceColName[0]
     destColName = destColName[0]
-    const { kanbanId } = req.user
+    const  kanbanId  = req.session.user.kanban
     try {
         if (!kanbanId) {
             return res.status(404).json({ message: 'Not Authorized to perform this action' })
@@ -144,7 +144,7 @@ module.exports.postMoveDifferent = async (req, res, next) => {
 module.exports.postMoveSame = async (req, res, next) => {
     let { colName, source,destination } = req.body
     colName = colName[0]
-    const { kanbanId } = req.user
+    const  kanbanId  = req.session.user.kanban
     try {
         if (!kanbanId) {
             return res.status(404).json({ message: 'Not Authorized to perform this action' })

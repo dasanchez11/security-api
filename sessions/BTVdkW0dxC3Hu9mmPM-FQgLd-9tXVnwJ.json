@@ -1,0 +1,17 @@
+{
+    "cookie": {
+        "originalMaxAge": 3600000,
+        "expires": "2022-07-20T07:31:52.782Z",
+        "httpOnly": true,
+        "path": "/"
+    },
+    "user": {
+        "_id": "62d5b32254c10e05a45917be",
+        "firstName": "Diego",
+        "lastName": "Sanchez",
+        "email": "dasarug@gmail.com",
+        "role": "admin",
+        "kanban": "62d5b32154c10e05a45917bb"
+    },
+    "__lastAccess": 1658298712783
+}

@@ -1,8 +1,5 @@
 const User = require('../Models/user.model')
-const verifyPassword = require('../utils/utils')
-const jwt = require('jsonwebtoken')
 require('dotenv').config()
-const hashPassword = require('../utils/utils')
 const utils = require('../utils/utils')
 const bcrypt = require('bcryptjs')
 const axios = require('axios')
@@ -21,26 +18,21 @@ module.exports.signIn = async (req, res, next) => {
                 message: 'Wrong email or password.'
             });
         }
-        const {verifyPassword,createToken} = utils
+        const { verifyPassword } = utils
         const passwordValid = await verifyPassword(
             password,
             user.password
         );
 
         if (passwordValid) {
-            const { password, bio, ...rest } = user;
-            
-            const userInfo = Object.assign({}, { ...rest });
-            const token = createToken(userInfo);
+            const { _id, firstName, lastName, email, role ,kanban} = user
+            const userInfo = { _id, firstName, lastName, email, role,kanban }
 
-            const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
-            const expiresAt = decodedToken.exp;
+            req.session.user = userInfo
 
             res.json({
                 message: 'Authentication successful!',
-                token,
-                userInfo,
-                expiresAt
+                userInfo
             });
         } else {
             res.status(403).json({
@@ -59,23 +51,22 @@ module.exports.signIn = async (req, res, next) => {
 
 module.exports.signUp = async (req, res, next) => {
 
-    const { email, firstName, lastName, password,captchaToken} = req.body;
-    const {createToken} = utils
+    const { email, firstName, lastName, password, captchaToken } = req.body;
     try {
-        const validateHuman = async(captchaToken) =>{
+        const validateHuman = async (captchaToken) => {
             const secret = process.env.GOOGLE_RECAPTCHA
             const URL = 'https://www.google.com/recaptcha/api/siteverify?'
             const response = await axios.post(`${URL}secret=${secret}&response=${captchaToken}`)
-            const {data} = await response
+            const { data } = await response
             return data.success
         }
 
         const isHuman = await validateHuman(captchaToken)
 
-        if(!isHuman){
-            return res.status(400).json({message:'There was a problem creating your user account'})
+        if (!isHuman) {
+            return res.status(400).json({ message: 'There was a problem creating your user account' })
         }
-       
+
         const hashedPassword = await bcrypt.hash(password, 12)
         const kanban = new Kanban()
         const savedKanban = await kanban.save()
@@ -102,11 +93,9 @@ module.exports.signUp = async (req, res, next) => {
         const savedUser = await newUser.save();
 
         if (savedUser) {
-            const token = createToken(savedUser);
-            const decodedToken = jwt.verify(token,process.env.SECRET_KEY);
-            const expiresAt = decodedToken.exp;
 
             const {
+                _id,
                 firstName,
                 lastName,
                 email,
@@ -115,6 +104,7 @@ module.exports.signUp = async (req, res, next) => {
             } = savedUser;
 
             const userInfo = {
+                _id,
                 firstName,
                 lastName,
                 email,
@@ -122,11 +112,11 @@ module.exports.signUp = async (req, res, next) => {
                 kanban
             };
 
+            req.session.user = userInfo
+
             return res.json({
                 message: 'User created!',
-                token,
-                userInfo,
-                expiresAt
+                userInfo
             });
         } else {
             return res.status(400).json({

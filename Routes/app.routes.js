@@ -12,6 +12,9 @@ router.delete('/inventory/:id',isAuthenticated,isAdmin,appController.deletInvent
 router.get('/users', isAuthenticated,isAdmin,appController.getUsers);
 router.get('/bio', isAuthenticated,appController.getBio);
 router.patch('/bio', isAuthenticated,appController.patchBio);
+router.post('/logout',isAuthenticated,appController.postLogout)
+router.get('/user-info',isAuthenticated,appController.getUserInfo)
+
 
 module.exports = router;
 

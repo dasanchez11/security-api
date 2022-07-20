@@ -1,10 +1,11 @@
 const isAdmin = (req, res, next) => {
-    if (!req.user) {
+    const {user} = req.session
+    if (!user) {
       return res.status(401).json({
         message: 'There was a problem authorizing the request'
       });
     }
-    if (req.user.role !== 'admin') {
+    if (user.role !== 'admin') {
       return res
         .status(401)
         .json({ message: 'Insufficient role' });
